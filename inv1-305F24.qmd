@@ -78,7 +78,7 @@ hist(A,
 
 <!-- Your written summary goes below this line -->
 
-From 10,000 simulations, we have a histogram with a point distribution of the number of times it takes to roll a six sided die and get all 6 six sides of the die to come up at least $once$. The histogram is centered around `r round(mean(A), 3)` which is the sample mean and has a standard deviation of about `r round(sd(A), 3)`. The graph is also strongly skewed right so it could appear that using the mean and the standard deviation to describe this graph could be faulty, due to the heavy skew. If we were to use the median and IQR to describe this graph, the graph would be centered at around `r median(A)`, with an interquartile range of `r IQR(A)`.
+From 10,000 simulations, we have a histogram with a point distribution of the number of times it takes to roll a six sided die and get all 6 six sides of the die to come up at least $once$. The histogram has a mean of `r round(mean(A), 3)` and a standard deviation of about `r round(sd(A), 3)`. The graph is also strongly skewed right so it could appear that using the mean and the standard deviation to describe this graph could be faulty, due to the heavy skew. If we were to use the median and IQR to describe this graph, the graph would have a median around `r median(A)`, with an interquartile range of `r IQR(A)`.
 
 
 
@@ -166,9 +166,9 @@ A plot like the one you just made can help us understand the growth rate of $E(X
 
 <!-- No code required. Write your written explanation here. -->
 
-E(X) = ln(k)
+k = ln(e(x))
 
-Like ln(x), our graph appears to have a y-intercept of (1,0). In addition our graph is concave down for all positive x values just like ln(x) is. Finally our graph has a positive but decreasing slope for all positive x values. With all of this information resembling the look of a graph of the function ln(x), it would appear that an expression for E(X) would be ln(x). 
+Like ln(x), our graph appears to have a y-intercept of (1,0). In addition our graph is concave down for all positive x values just like ln(x) is. Finally our graph has a positive but decreasing slope for all positive x values. With all of this information resembling the look of a graph of the function ln(x), it would appear that an expression for E(X) as a function of k would be ln(x). 
 
 
 
@@ -212,7 +212,7 @@ hist(B,
      main = paste("Histogram of Number of Rolls"), 
      col = "green")
 ```
-From 10,000 simulations, we have a histogram with a point distribution of the number of times it takes to roll a six sided die and get all 6 six sides of the die to come up at least $twice$. The histogram of y is also skewed right. It has a sample mean of around `r round(mean(B), 3)` and has a standard deviation of around `r round(sd(B), 3)`. Since it is skewed right, it could be apparent that the mean and standard deviation of such a data set could be unreliable. In that case, if we were to use the median and the IQR to describe this plot, it would be centered at a median value of `r median(B)` with an interquartile range of `r IQR(B)`.
+From 10,000 simulations, we have a histogram with a point distribution of the number of times it takes to roll a six sided die and get all 6 six sides of the die to come up at least $twice$. The histogram of y is also skewed right. It has a sample mean of around `r round(mean(B), 3)` and has a standard deviation of around `r round(sd(B), 3)`. Since it is skewed right, it could be apparent that the mean and standard deviation of such a data set could be unreliable. In that case, if we were to use the median and the IQR to describe this plot, it would have a median value of `r median(B)` with an interquartile range of `r IQR(B)`.
 
 ```{r}
 CI2 <- t.test(B)
@@ -228,5 +228,5 @@ We are 95% confident that the next number of rolls it will take to see all six s
 
 ### 8. Based on your simulation results, is the mean of $Y$ twice the mean of $X$? Should it be? Why or why not?
 
-Since the mean of y is `r round(mean(B), 3)` and the mean of x is `r round(mean(A), 3)`, we can conclude the mean of y is not double the mean of x. This makes sense, as the distributions of x and y are both skewed right, skewing the mean as well. As a result, the mean is very unreliable to use in this case, and thus, it results in the mean of y not being double of the mean of x.
+Since the mean of y is `r round(mean(B), 3)` and the mean of x is `r round(mean(A), 3)`, we can conclude the mean of y is not double the mean of x. This makes sense, as by the the time you have seen all six sides once, you have most likely gotten a couple of duplicates, so by the time you have completed x you most likely already have some sort of progress for y. This overlap of x and y explain why the mean of y is not double the mean of y.
 
