@@ -1,0 +1,232 @@
+---
+title: 'Investigation #1: Roll Em!'
+author: "Siddharth Venkiteswaran and Daniel Bush"
+author-title: Authors
+format: 
+  html:  
+    embed-resources: true
+    code-tools: false
+    toc: true
+    toc-depth: 2
+editor: source
+message: false
+warning: false
+code-fold: true
+theme: cyborg
+execute: 
+  echo: true
+  output: true
+  error: false
+---
+
+```{r}
+#| include: false
+options(scipen=999)  # turns off scientific notation
+set.seed(5102005)  # set your own seed!
+```
+
+Suppose you have a standard, fair, 6-sided die. You will roll it again and again until all 6 sides have come up at least once. How long will this take, on average? More generally, if you have a fair $k$-sided die (or cards marked 1 through $k$ that you’re sampling with replacement), what’s the expected number of tries required to see all $k$ numbers?
+
+------------------------------------------------------------------------
+
+Write a simulation function to explore this question. Your function should have at least\* one input: $k$ = the number of sides on your die. Your function should have exactly one output: a single value of the random variable $X$ = number of rolls required to see all $k$ sides.
+
+\*I **strongly** suggest you read the entire investigation before beginning to write your code! In particular, make your function flexible enough to handle Question 7 by including a second argument.
+
+
+Write your simulation function in the code chunk below. The function will be called `rollem()`.
+
+```{r Simulate Step}
+## Create a rollem function
+rollem <- function(k){
+  ## Create an emtpy vector of 0s 
+  die_sides = numeric(k)
+  ## Fill the vector with numeric values
+  while (any(die_sides == 0)) {
+    unique_die <- sample(1:k, 1, replace = TRUE)
+    die_sides[unique_die] = die_sides[unique_die] + 1
+  }
+  ## Find out the number of rolls
+  X <- sum(die_sides)
+  ## Return the number of rolls
+  return(X)
+}
+
+```
+
+Next comes the Iterate step: generate and store at least 10,000 values of the random variable $X$ assuming $k$ = 6.
+
+```{r Iterate Step}
+n <- 10000
+A <- replicate(n, rollem(6))
+```
+
+------------------------------------------------------------------------
+
+Use the results of your Simulate and Iterate steps to answer the following questions. You should only run your code *once* to answer questions 1-3. Don't re-run it for each question!
+
+### 1. Create a well-labeled histogram of the simulated values of $X$. Summarize the distribution (shape, center, spread) in complete sentences.
+
+```{r}
+#| fig-height: 4
+#| fig-width: 6
+hist(A, 
+     xlab = "Number of Rolls", 
+     main = paste("Histogram of Number of Rolls"), 
+     col = "blue") 
+```
+
+<!-- Your written summary goes below this line -->
+
+From 10,000 simulations, we have a histogram with a point distribution of the number of times it takes to roll a six sided die and get all 6 six sides of the die to come up at least $once$. The histogram is centered around `r round(mean(A), 3)` which is the sample mean and has a standard deviation of about `r round(sd(A), 3)`. The graph is also strongly skewed right so it could appear that using the mean and the standard deviation to describe this graph could be faulty, due to the heavy skew. If we were to use the median and IQR to describe this graph, the graph would be centered at around `r median(A)`, with an interquartile range of `r IQR(A)`.
+
+
+
+
+
+
+
+
+### 2. Construct and interpret in context a 95% confidence interval for the expected value of $X$ when $k$ = 6.
+
+```{r}
+CI <- t.test(A)
+CI$conf.int
+```
+
+<!-- Your interpretation goes below this line -->
+
+We are 95% confident that the true mean number of tries it takes to roll each side of a die at least once is within the interval (`r CI$conf.int`).
+
+
+
+
+
+
+
+
+### 3. Construct and interpret in context a 95% prediction interval for a single future value of $X$ when $k$ = 6.
+
+To construct an approximate 95% prediction interval for a single value of a variable, use the 2.5 and 97.5 percentiles of your output vector. The `quantile()` function in R will prove useful. (There exists another formula for prediction intervals, but it requires your distribution to be approximately Normal.)
+
+```{r}
+quantile(A, probs = c(0.025, 0.975))
+```
+
+<!-- Your interpretation goes below this line -->
+We are 95% confident that the next number of rolls it will take to see all six sides of a die is within the interval `r quantile(A, prob = 0.025)` and `r quantile(A, prob = 0.975)` rolls.
+
+
+
+
+
+------------------------------------------------------------------------
+
+Now you’re going to investigate how the mean of $X$ grows as we increase the number of sides, $k$. Is the mean of $X$ something like $2k$? $3k$? $k^2$?
+
+### 4. Run your code for $k$ = 1, 5, 10, 20, 30, 40, 50, and 60. Use *n* = 1000 for each $k$; otherwise, it'll take a really long time. For each run of 1000, record the sample mean $\bar{x}$. You will need those eight $\bar{x}$ values for Question 5.
+
+Use a *for* loop. You'll need to create a vector of the eight $k$ values. Your *for* loop should output a vector of the eight $\bar{x}$ values. 
+
+```{r}
+nums <- c(1,5,10,20,30,40,50,60)
+mean_vec <- numeric(length = 8)
+for (i in 1:8) {
+  mean_vec[i] <- mean(replicate(1000, rollem(nums[i])))
+}
+
+mean_vec
+```
+
+### 5. Create a graph with $(\bar{x}\div k)$ on the vertical axis and $k$ on the horizontal axis.
+
+Pay attention: your y-axis values are not the eight $\bar{x}$ values you just calculated, but rather each $\bar{x}$ value divided by the corresponding $k$ value. These quotients are easy to create with the two vectors from the previous step. 
+
+If you use the `plot` function in R with the option `type="l"`, you should get a graph with your eight $(k,\bar{x}\div k)$ points connected by line segments. That's what I want. You're also welcome to use more advanced graphics packages, like ggplot2, if you're familiar with them.
+
+```{r}
+#| fig-height: 4
+#| fig-width: 6
+library(ggplot2)
+quotient_vec = mean_vec / nums
+ggplot(mapping = aes(
+  x = nums,
+  y = quotient_vec
+)) + 
+  geom_point(color = "blue") +
+  geom_line(color = "green") +
+  labs(title = "Comparing Xbar/k to k",
+       x = "k (number of sides on a die)",
+       y = "Xbar/k")
+```
+
+A plot like the one you just made can help us understand the growth rate of $E(X)$ . How? Well, if $E(X)$ grows linearly with $k$ --- like $E(X) = 2k$ or $3k$ --- then $E(X)/k$ is a constant, so $(\bar{x}\div k)$ will be roughly constant and the graph will be essentially flat. On the other hand, if $E(X)$ is a quadratic function of $k$ like $k^2$ or $2k^2$, then $E(X)/k$ is a linear function, and so your graph will be roughly linear.
+
+### 6. Based on your graph, make an educated guess about an expression for $E(X)$ as a function of $k$. Explain how your graph supports your answer.
+
+<!-- No code required. Write your written explanation here. -->
+
+E(X) = ln(k)
+
+Like ln(x), our graph appears to have a y-intercept of (1,0). In addition our graph is concave down for all positive x values just like ln(x) is. Finally our graph has a positive but decreasing slope for all positive x values. With all of this information resembling the look of a graph of the function ln(x), it would appear that an expression for E(X) would be ln(x). 
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------
+
+Let's make thing more complicated: define $Y$ = the number of rolls of a fair 6-sided die required to see all 6 sides at least **twice**. In questions 7 and 8 below, you'll explore the distribution of $Y$.
+
+Use the R code chunk below to simulate at least 10,000 values of $Y$. Ideally, your original simulation function is flexible enough to handle an arbitrary number of times for seeing each side (e.g., once for $X$, twice for $Y$). Otherwise, create a new function here to simulate rolling until you've seen every side twice.
+
+```{r}
+rollem2 <- function(k){
+  ## Create an emtpy vector of 0s 
+  die_sides = numeric(k)
+  ## Fill the vector with numeric values
+  while (any(die_sides < 2)) {
+    unique_die <- sample(1:k, 1, replace = TRUE)
+    die_sides[unique_die] = die_sides[unique_die] + 1
+  }
+  ## Find out the number of rolls
+  Y <- sum(die_sides)
+  ## Return the number of rolls
+  return(Y)
+}
+
+B <- replicate(10000, rollem2(6))
+```
+
+
+### 7. Use the output of your code to repeat 1-3 for the random variable $Y$. Don't forget the interpretations!
+
+<!-- You'll have a mix of R code chunks and exposition below -->
+
+```{r}
+hist(B,
+     xlab = "Number of Rolls", 
+     main = paste("Histogram of Number of Rolls"), 
+     col = "green")
+```
+From 10,000 simulations, we have a histogram with a point distribution of the number of times it takes to roll a six sided die and get all 6 six sides of the die to come up at least $twice$. The histogram of y is also skewed right. It has a sample mean of around `r round(mean(B), 3)` and has a standard deviation of around `r round(sd(B), 3)`. Since it is skewed right, it could be apparent that the mean and standard deviation of such a data set could be unreliable. In that case, if we were to use the median and the IQR to describe this plot, it would be centered at a median value of `r median(B)` with an interquartile range of `r IQR(B)`.
+
+```{r}
+CI2 <- t.test(B)
+CI2$conf.int
+```
+We are 95% confident that the true mean number of tries it takes to roll each side of a die at least twice is within the interval (`r CI2$conf.int`).
+
+```{r}
+quantile(B, probs = c(0.025, 0.975))
+```
+We are 95% confident that the next number of rolls it will take to see all six sides of a die twice is within the interval `r quantile(B, prob = 0.025)` and `r quantile(B, prob = 0.975)` rolls.
+
+
+### 8. Based on your simulation results, is the mean of $Y$ twice the mean of $X$? Should it be? Why or why not?
+
+Since the mean of y is `r round(mean(B), 3)` and the mean of x is `r round(mean(A), 3)`, we can conclude the mean of y is not double the mean of x. This makes sense, as the distributions of x and y are both skewed right, skewing the mean as well. As a result, the mean is very unreliable to use in this case, and thus, it results in the mean of y not being double of the mean of x.
+
